@@ -13,7 +13,11 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var processedImage: Image?
+    
     @State private var filterIntensity = 0.5
+    @State private var radius = 0.5
+    @State private var scale = 0.5
+    
     @State private var selectedItem: PhotosPickerItem?
     @State private var showingFilters = false
     
@@ -41,14 +45,28 @@ struct ContentView: View {
                 
                 Spacer()
                 
-                HStack {
+                // Challenge 1: make the slider and change filter button disabled if there is no image selected
+                // Challenge 2: experiment with more than 1 slider
+                VStack {
                     Text("Intensity")
                     Slider(value: $filterIntensity)
                         .onChange(of: filterIntensity, applyProcessing)
+                        .disabled(selectedItem == nil ? true : false)
+                    
+                    Text("Radius")
+                    Slider(value: $radius)
+                        .onChange(of: radius, applyProcessing)
+                        .disabled(selectedItem == nil ? true : false)
+                    
+                    Text("Scale")
+                    Slider(value: $scale)
+                        .onChange(of: scale, applyProcessing)
+                        .disabled(selectedItem == nil ? true : false)
                 }
                 
                 HStack {
                     Button("Change Filter", action: changeFilter)
+                        .disabled(selectedItem == nil ? true : false)
                     
                     Spacer()
                     
@@ -67,6 +85,10 @@ struct ContentView: View {
                 Button("Sepia Tone") { setFilter(CIFilter.sepiaTone())}
                 Button("Unsharp Mask") { setFilter(CIFilter.unsharpMask())}
                 Button("Vignette") { setFilter(CIFilter.vignette())}
+                // Challenge 3: added 3 more filters
+                Button("Bloom") { setFilter(CIFilter.bloom())}
+                Button("Monochrome") { setFilter(CIFilter.colorMonochrome())}
+                Button("Exposure Adjust") { setFilter(CIFilter.exposureAdjust())}
                 Button("Cancel", role: .cancel) {}
             }
             
@@ -96,11 +118,11 @@ struct ContentView: View {
         }
         
         if inputKeys.contains(kCIInputRadiusKey) {
-            currentFilter.setValue(filterIntensity * 200, forKey: kCIInputRadiusKey)
+            currentFilter.setValue(radius * 200, forKey: kCIInputRadiusKey)
         }
         
         if inputKeys.contains(kCIInputScaleKey) {
-            currentFilter.setValue(filterIntensity * 10, forKey: kCIInputScaleKey)
+            currentFilter.setValue(scale * 10, forKey: kCIInputScaleKey)
         }
         
         guard let outputImage = currentFilter.outputImage else { return }
